@@ -16,23 +16,28 @@ app.get("/", (req, res) => {
 });
 
 app.post("/payment/create", async (req, res) => {
-  const total = req.query.total;
-  if (total > 0) {
-    //    console.log("payment recived", total)
-    //    res.send(total)
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: total,
-      currency: "usd",
-    });
-    // console.log(paymentIntent)
-
-    res.status(201).json({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } else {
-    res.status(403).json({ message: "Payment must be greater than zero" });
+  try{
+    const total = req.query.total;
+    if (total > 0) {
+      //    console.log("payment recived", total)
+      //    res.send(total)
+  
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: parseInt(total),
+        currency: "usd",
+      });
+      // console.log(paymentIntent)
+  
+      res.status(201).json({
+        clientSecret: paymentIntent.client_secret,
+      });
+    } else {
+      res.status(403).json({ message: "Payment must be greater than zero" });
+    }
+  } catch(error){
+    res.status(500).json({ message: "server error please try again" });
   }
+  
 });
 
 app.listen(2024,(err) =>{
